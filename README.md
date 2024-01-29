@@ -8,7 +8,7 @@ _last update: Jan 29, 2024 (NH)_
 App was developed using Python version 3.7.2
 
 Tasks to do once: 
-1) Download the _input_data_ folder (from Vanderbilt Box; available upon request) to the main folder
+1) Download the _input_data_ folder (from Vanderbilt Box; available upon [request](https://vanderbilt.box.com/s/q43u7cdgz4vb6qgpyt4qwacjotkcbew2)) to the main folder
 2) Create a Python virtual environment: `python -m venv venv_dash`
 3) Activiate it and install the included dependencies using pip: `source venv_dash/bin/activate; pip install -r dash_reqs.txt`
 
