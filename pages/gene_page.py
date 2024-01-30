@@ -18,7 +18,7 @@ import dash_bootstrap_components as dbc
 ###################################################################
 
 ## register this page 
-dash.register_page(__name__)
+dash.register_page(__name__, name='Gene Summary')
 
 ###################################################################
 
@@ -98,7 +98,7 @@ scols = ['phenotype', 'SNP', 'jti_model']
 col_widths = [{'if': {'column_id': c}, 'width': '15%'} for c in fcols] + \
              [{'if': {'column_id': c}, 'width': '20%'} for c in scols]
 
-kws = {'page_current': 0, 'page_size': 10, 'page_action': 'custom', \
+kws = {'page_current': 0, 'page_size': 10, 'page_action': 'custom', 'page_count': 0, \
        'sort_action': 'custom', 'sort_mode': 'multi', 'sort_by': [], \
        'style_cell':{'textAlign': 'left'}, 'style_cell_conditional': col_widths}
 
@@ -107,6 +107,7 @@ twas_table = dash_table.DataTable(id='gene_twas_table', columns=twas_cols, **kws
 
 num_gwas_text = html.H5('', id='num_gwas_text')
 num_twas_text = html.H5('', id='num_twas_text')
+num_biov_text = html.H5('', id='num_biov_text')
 
 ######################################################################################
 
@@ -143,6 +144,7 @@ layout = dbc.Container([
             dbc.Row(twas_table, style=kws), 
             dbc.Row(num_gwas_text, style=kws),
             dbc.Row(gwas_table, style=kws), 
+            dbc.Row(num_biov_text, style=kws),
             dbc.Row(biovu_table, style=kws), 
             ], 
             width=9), 
@@ -157,6 +159,7 @@ layout = dbc.Container([
 @callback(
     [Output('gene_twas_table', 'data'),
      Output('num_twas_text', 'children'),
+     Output('gene_twas_table', 'page_count'),
      Output('gene_name', 'children'),
      Output('ens_label', 'children')], 
 
@@ -170,8 +173,10 @@ layout = dbc.Container([
 
 def update_gene_twas_table(gene, page_current, page_size, sort_by): 
 
-    if not gene: return None, None, None, None
+    if not gene: return None, None, None, None, None
     df = twas_data.loc[twas_data['symbol'] == gene]
+
+    num_pages = int(df.shape[0] / page_size) + 1
 
     ## sorting
     if len(sort_by):
@@ -184,12 +189,13 @@ def update_gene_twas_table(gene, page_current, page_size, sort_by):
     bot = (page_current + 1) * page_size
     return df.iloc[top:bot].to_dict('records'), \
            'TWAS: {} results found'.format(df.shape[0]), \
-           gene, sym2ens[gene] 
+           num_pages, gene, sym2ens[gene] 
 
 ## callback: update GWAS table 
 @callback(
     [Output('gene_gwas_table', 'data'),
-     Output('num_gwas_text', 'children')],
+     Output('num_gwas_text', 'children'),
+     Output('gene_gwas_table', 'page_count')],
 
     Input('gene_input', 'value'), 
     Input('gene_gwas_table', 'page_current'),
@@ -205,6 +211,8 @@ def update_gene_gwas_table(gene, page_current, page_size, sort_by):
     snps = gene2snps[gene]
     df = gwas_data.loc[gwas_data['SNP'].isin(snps)]
 
+    num_pages = int(df.shape[0] / page_size) + 1
+
     ## sorting
     if len(sort_by):
         cols = [col['column_id'] for col in sort_by]
@@ -216,10 +224,13 @@ def update_gene_gwas_table(gene, page_current, page_size, sort_by):
     bot = (page_current + 1) * page_size
     return df.iloc[top:bot].to_dict('records'), \
            'GWAS: {} results found'.format(df.shape[0]), \
+           num_pages
 
 ## callback: update BioVU table 
 @callback(
-    Output('biovu_table', 'data'), 
+    [Output('biovu_table', 'data'), 
+     Output('num_biov_text', 'children')],
+
     Input('gene_input', 'value'), 
     prevent_initial_call=True
     )
@@ -230,7 +241,8 @@ def update_biovu_table(gene):
     df = biovu_data.loc[biovu_data['sym'] == gene]
     df = df.sort_values(['tissue', 'phename', 'volume'])
 
-    return df.to_dict('records') 
+    return df.to_dict('records'), \
+           'BioVU Shared Genes: {} results found'.format(df.shape[0])
 
 ## callback: report number of JTI snps 
 @callback(
