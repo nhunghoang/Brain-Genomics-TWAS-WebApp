@@ -25,7 +25,7 @@ dash.register_page(__name__, name='Brain Genomics TWAS', path='/')
 ## load TWAS data 
 tabl_cols = ['phenotype', 'jti_model', 'symbol', 'beta_TWAS', 'pval_TWAS', 'FDR_TWAS', 'BON_TWAS']
 user_cols = ['Volume Phenotype', 'JTI Gene Model', 'Gene Symbol', 'Ensembl ID', \
-             'TWAS beta', 'TWAS p', 'TWAS FDR(p)', 'TWAS Bonf(p)']
+             'TWAS beta', 'TWAS p', 'TWAS FDR(p)', 'TWAS Bon(p)']
 
 twas_cols = [{'name': n, 'id': c} \
               for n, c in zip(user_cols[:-4], tabl_cols[:-4])]
@@ -38,7 +38,7 @@ twas_path = os.getcwd() + '/input_data/twas_ukb_volume.csv'
 twas_data = pd.read_csv(twas_path, usecols=tabl_cols) 
 
 ## create TWAS table
-page_nrow = 50
+page_nrow = 20
 num_pages = int(twas_data.shape[0] / page_nrow) + 1 
 twas_table = dash_table.DataTable(id='twas_table',
                                   columns=twas_cols,
@@ -59,16 +59,17 @@ twas_table = dash_table.DataTable(id='twas_table',
 iregs = ['DLPFC', 'Ant. Cingulate', 'Amygdala', 'Hippocampus', \
          'Caudate', 'Putamen', 'Nuc. Accumbens', 'Cerebellum']
 genes = np.sort(twas_data['symbol'].unique())
-pvals = {'pvalue': 'nominal p', 'FDR': 'FDR(p)', 'BON': 'Bonf(p)'}
+pvals = {'pval_TWAS': 'p <', 'FDR_TWAS': 'FDR(p) <', 'BON_TWAS': 'Bon(p) <'}
 
 phen_menu = dcc.Dropdown(iregs, None, id='phen_menu', multi=True)
 gmod_menu = dcc.Dropdown(iregs, None, id='gmod_menu', multi=True)
 gene_menu = dcc.Dropdown(genes, None, id='gene_menu', multi=True)
-pval_menu = dcc.Dropdown(pvals, None, id='pval_menu', multi=False)
+pval_menu = dcc.Dropdown(pvals, 'pval_TWAS', id='pval_menu', multi=False, clearable=False)
 
 ## user input for pval filter
 pval_input = dcc.Input(id='pval_itxt', type='number', min=0, max=1,
-                       debounce=True, style={'width': '100%'})
+                       debounce=True, value=1, 
+                       style={'width': '100%'})
 
 ## various text
 style_kws = {'display': 'flex', 'align-items': 'center'}
@@ -76,8 +77,7 @@ main_text = html.H5('TWAS Table Filters', style=style_kws)
 phen_text = html.H6('Regional Volumes:', style=style_kws)
 gmod_text = html.H6('Regional JTI Gene Models:', style=style_kws)
 gene_text = html.H6('Gene Symbols:', style=style_kws)
-pval_txt0 = html.H6('p-value cut-off:', style=style_kws)
-pval_txt1 = html.P('<', style=style_kws)
+pval_text = html.H6('Significance:', style=style_kws)
 
 num_res_txt = html.P('', id='num_results_txt', style=style_kws)
 
@@ -91,22 +91,30 @@ layout = dbc.Container([
             dbc.Row(main_text, style=kws),
             dbc.Row(num_res_txt, style=kws),
 
-            dbc.Row(phen_text, style=kws),
-            dbc.Row(phen_menu, style=kws),
-
-            dbc.Row(gmod_text, style=kws),
-            dbc.Row(gmod_menu, style=kws),
-
-            dbc.Row(gene_text, style=kws),
-            dbc.Row(gene_menu, style=kws),
-
-            dbc.Row(pval_txt0, style=kws),
             dbc.Row([
-                dbc.Col(pval_menu, width=6),
-                dbc.Col(pval_txt1, width=1),
-                dbc.Col(pval_input, width=5),
+                dbc.Col(phen_text, width=6),
+                dbc.Col(phen_menu, width=6),
+                ], 
+                align='center', style=kws), 
+
+            dbc.Row([
+                dbc.Col(gmod_text, width=6),
+                dbc.Col(gmod_menu, width=6),
+                ], 
+                align='center', style=kws), 
+
+            dbc.Row([
+                dbc.Col(gene_text, width=6),
+                dbc.Col(gene_menu, width=6),
+                ], 
+                align='center', style=kws), 
+
+            dbc.Row([
+                dbc.Col(pval_text, width=6),
+                dbc.Col(pval_menu, width=3),
+                dbc.Col(pval_input, width=3),
                 ],
-                style=kws),
+                align='center', style=kws),
             ],
             width=3),
 

@@ -24,12 +24,13 @@ gene_page_path = dash.page_registry['pages.gene_page']['path']
 ## top navigation bar
 navbar = dbc.NavbarSimple(
     children=[
+        dbc.NavItem(dbc.NavLink('TWAS Table', href=twas_page_path)),
         dbc.NavItem(dbc.NavLink('Summaries by Gene', href=gene_page_path)),
         dbc.DropdownMenu(
             children=[
                 dbc.DropdownMenuItem('More', header=True),
-                dbc.DropdownMenuItem('Preprint', href="#"),
-                dbc.DropdownMenuItem('GitHub', href="#"),
+                dbc.DropdownMenuItem('Preprint', href='https://osf.io/preprints/osf/xefru'),
+                dbc.DropdownMenuItem('GitHub', href='https://github.com/nhunghoang/Brain-Genomics-TWAS-WebApp'),
             ],
             nav=True,
             in_navbar=True,

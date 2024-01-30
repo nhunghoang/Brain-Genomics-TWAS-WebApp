@@ -47,10 +47,10 @@ sym2ens = pd.read_csv(map2_path, index_col='sym').to_dict()['ens']
 
 ## load twas/gwas data
 gtabl_cols = ['SNP', 'phenotype', 'beta_GWAS', 'pval_GWAS', 'FDR_GWAS', 'BON_GWAS']
-guser_cols = ['SNP', 'Volume Phenotype', 'GWAS beta', 'GWAS p', 'GWAS FDR(p)', 'GWAS Bonf(p)']
+guser_cols = ['SNP', 'Volume Phenotype', 'GWAS beta', 'GWAS p', 'GWAS FDR(p)', 'GWAS Bon(p)']
 
 ttabl_cols = ['jti_model', 'phenotype', 'beta_TWAS', 'pval_TWAS', 'FDR_TWAS', 'BON_TWAS']
-tuser_cols = ['JTI Gene Model', 'Volume Phenotype', 'TWAS beta', 'TWAS p', 'TWAS FDR(p)', 'TWAS Bonf(p)']
+tuser_cols = ['JTI Gene Model', 'Volume Phenotype', 'TWAS beta', 'TWAS p', 'TWAS FDR(p)', 'TWAS Bon(p)']
 
 gwas_cols = [{'name': n, 'id': c} for n, c in zip(guser_cols[:-4], gtabl_cols[:-4])]
 twas_cols = [{'name': n, 'id': c} for n, c in zip(tuser_cols[:-4], ttabl_cols[:-4])]
@@ -117,6 +117,24 @@ biovu_table = dash_table.DataTable(id='biovu_table', columns=biovu_cols, **biovu
 
 ######################################################################################
 
+## filter options 
+skws = {'display': 'flex', 'align-items': 'center'}
+twas_pval_text = html.H6('TWAS Significance:', style=skws) 
+gwas_pval_text = html.H6('GWAS Significance:', style=skws) 
+
+twas_pvals = {'pval_TWAS': 'p <', 'FDR_TWAS': 'FDR(p) <', 'BON_TWAS': 'Bon(p) <'}
+gwas_pvals = {'pval_GWAS': 'p <', 'FDR_GWAS': 'FDR(p) <', 'BON_GWAS': 'Bon(p) <'}
+
+mkws = {'multi': False, 'clearable': False}
+twas_pval_menu = dcc.Dropdown(twas_pvals, 'pval_TWAS', id='twas_pval_menu', **mkws)
+gwas_pval_menu = dcc.Dropdown(gwas_pvals, 'pval_GWAS', id='gwas_pval_menu', **mkws)
+
+ikws = {'type': 'number', 'min': 0, 'max': 1, 'debounce': True, 'style': {'width': '100%'}} 
+twas_pval_input = dcc.Input(id='twas_pval_input', value=1, **ikws)
+gwas_pval_input = dcc.Input(id='gwas_pval_input', value=1, **ikws)
+
+######################################################################################
+
 ## text for JTI SNP counts 
 regs = ['DLPFC', 'Ant. Cingulate', 'Amygdala', 'Hippocampus', \
         'Caudate', 'Putamen', 'Nuc. Accumbens', 'Cerebellum']
@@ -128,11 +146,35 @@ jti_table = dash_table.DataTable(id='jti_table', columns=jti_cols, style_cell={'
 
 ## layout 
 kws = {'margin': '10px'} 
+kws1 = {'margin': '10px 10px 20px 10px', \
+        'background-color': '#C0C0C0', \
+        'padding': '10px 6px 6px 6px', 'border-radius': '5px'}
+
 layout = dbc.Container([
 
     dbc.Row([
         dbc.Col([
-            dbc.Row(gene_input, style=kws), 
+
+            dbc.Row([
+                dbc.Row(gene_input, style={'margin': '5px 5px 20px 0px'}), 
+
+                dbc.Row([
+                    dbc.Col(twas_pval_text, width=4),
+                    dbc.Col(twas_pval_menu, width=5), 
+                    dbc.Col(twas_pval_input, width=3), 
+                    ], 
+                    align='center', style={'margin': '5px 5px 10px 0px'}), 
+
+                dbc.Row([
+                    dbc.Col(gwas_pval_text, width=4),
+                    dbc.Col(gwas_pval_menu, width=5), 
+                    dbc.Col(gwas_pval_input, width=3), 
+                    ], 
+                    align='center', style={'margin': '5px 5px 10px 0px'}), 
+
+                ], 
+                align='center', style=kws1),
+
             dbc.Row(gene_name, style=kws), 
             dbc.Row(ens_label, style=kws), 
             dbc.Row(jti_table, style=kws),
@@ -140,12 +182,12 @@ layout = dbc.Container([
             width=3), 
 
         dbc.Col([
-            dbc.Row(num_twas_text, style=kws),
-            dbc.Row(twas_table, style=kws), 
-            dbc.Row(num_gwas_text, style=kws),
-            dbc.Row(gwas_table, style=kws), 
-            dbc.Row(num_biov_text, style=kws),
-            dbc.Row(biovu_table, style=kws), 
+            dbc.Row(num_twas_text, style={'margin': '10px 10px 0px 10px'}),
+            dbc.Row(twas_table, style={'margin': '0px 10px 20px 10px'}), 
+            dbc.Row(num_gwas_text, style={'margin': '10px 10px 0px 10px'}),
+            dbc.Row(gwas_table, style={'margin': '0px 10px 20px 10px'}), 
+            dbc.Row(num_biov_text, style={'margin': '10px 10px 0px 10px'}),
+            dbc.Row(biovu_table, style={'margin': '0px 10px 20px 10px'}), 
             ], 
             width=9), 
         ]), 
@@ -168,13 +210,20 @@ layout = dbc.Container([
     Input('gene_twas_table', 'page_size'),
     Input('gene_twas_table', 'sort_by'),
 
+    Input('twas_pval_menu', 'value'),
+    Input('twas_pval_input', 'value'),
+
     prevent_initial_call=True
     )
 
-def update_gene_twas_table(gene, page_current, page_size, sort_by): 
+def update_gene_twas_table(gene, page_current, page_size, sort_by, pval_type, pval_text): 
 
     if not gene: return None, None, None, None, None
     df = twas_data.loc[twas_data['symbol'] == gene]
+
+    ## filters 
+    if pval_type: 
+        df = df.loc[df[pval_type] < pval_text] 
 
     num_pages = int(df.shape[0] / page_size) + 1
 
@@ -202,14 +251,21 @@ def update_gene_twas_table(gene, page_current, page_size, sort_by):
     Input('gene_gwas_table', 'page_size'),
     Input('gene_gwas_table', 'sort_by'),
 
+    Input('gwas_pval_menu', 'value'),
+    Input('gwas_pval_input', 'value'),
+
     prevent_initial_call=True
     )
 
-def update_gene_gwas_table(gene, page_current, page_size, sort_by): 
+def update_gene_gwas_table(gene, page_current, page_size, sort_by, pval_type, pval_text): 
 
     if not gene: return None, None
     snps = gene2snps[gene]
     df = gwas_data.loc[gwas_data['SNP'].isin(snps)]
+
+    ## filters 
+    if pval_type: 
+        df = df.loc[df[pval_type] < pval_text] 
 
     num_pages = int(df.shape[0] / page_size) + 1
 
