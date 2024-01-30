@@ -259,7 +259,7 @@ def update_gene_twas_table(gene, page_current, page_size, sort_by, pval_type, pv
 
 def update_gene_gwas_table(gene, page_current, page_size, sort_by, pval_type, pval_text): 
 
-    if not gene: return None, None
+    if not gene: return None, None, None
     snps = gene2snps[gene]
     df = gwas_data.loc[gwas_data['SNP'].isin(snps)]
 
