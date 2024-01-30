@@ -1,7 +1,7 @@
 # Brain Genomics TWAS WebApp 
-Simple web application for parsing TWAS results (regional brain volumes in the UK Biobank) 
+Simple web application for parsing TWAS results from _Hoang, et al._ (regional brain volumes in the UK Biobank) 
 
-_last update: Jan 29, 2024 (NH)_
+_last code update: Jan 30, 2024_
 
 ## How to Run
 
@@ -20,4 +20,16 @@ Running the app:
 
 Closing the app: 
 1) Close the window as you would for a website
-2) Deactivate the virtual environment (`deactivate`) 
+2) Deactivate the virtual environment (`deactivate`)
+
+## WebApp Layout
+
+Home (**TWAS Table**) page - for exploring all or a subset of the TWAS results 
+
+<img width="1469" alt="s1" src="https://github.com/nhunghoang/Brain-Genomics-TWAS-WebApp/assets/23412134/30dc4acc-98ce-47fb-a939-e6b236a813a5">
+
+**Summaries by Gene** page - for exploring the TWAS, GWAS, and BioVU associations of a specific gene 
+
+<img width="1465" alt="s2" src="https://github.com/nhunghoang/Brain-Genomics-TWAS-WebApp/assets/23412134/e990f27c-7595-4b89-8b21-53f39328f0d6">
+<img width="1445" alt="s3" src="https://github.com/nhunghoang/Brain-Genomics-TWAS-WebApp/assets/23412134/66a7a040-c00d-443f-8b9e-550a13e5d838">
+
