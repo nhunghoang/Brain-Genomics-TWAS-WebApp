@@ -84,42 +84,42 @@ num_res_txt = html.P('', id='num_results_txt', style=style_kws)
 ######################################################################################
 
 ## layout 
-kws = {'margin': '10px'} 
+kws = {'margin': '10px'}
 layout = dbc.Container([
     dbc.Row([
         dbc.Col([
-            dbc.Row(main_text, style=kws),
-            dbc.Row(num_res_txt, style=kws),
+            dbc.Row(main_text, style={'margin': '10px 0px 0px 10px'}),
+            dbc.Row(num_res_txt, style={'margin': '0px 0px 10px 10px'}),
 
             dbc.Row([
-                dbc.Col(phen_text, width=6),
-                dbc.Col(phen_menu, width=6),
+                dbc.Col(phen_text, width=5),
+                dbc.Col(phen_menu, width=7),
                 ], 
-                align='center', style=kws), 
+                align='center', style={'margin': '10px 0px 20px 10px'}), 
 
             dbc.Row([
-                dbc.Col(gmod_text, width=6),
-                dbc.Col(gmod_menu, width=6),
+                dbc.Col(gmod_text, width=5),
+                dbc.Col(gmod_menu, width=7),
                 ], 
-                align='center', style=kws), 
+                align='center', style={'margin': '10px 0px 20px 10px'}), 
 
             dbc.Row([
-                dbc.Col(gene_text, width=6),
-                dbc.Col(gene_menu, width=6),
+                dbc.Col(gene_text, width=5),
+                dbc.Col(gene_menu, width=7),
                 ], 
-                align='center', style=kws), 
+                align='center', style={'margin': '10px 0px 20px 10px'}), 
 
             dbc.Row([
-                dbc.Col(pval_text, width=6),
-                dbc.Col(pval_menu, width=3),
+                dbc.Col(pval_text, width=5),
+                dbc.Col(pval_menu, width=4),
                 dbc.Col(pval_input, width=3),
                 ],
-                align='center', style=kws),
+                align='center', style={'margin': '10px 0px 20px 10px'}),
             ],
             width=3),
 
         dbc.Col([
-            dbc.Row(twas_table, style=kws),
+            dbc.Row(twas_table, style={'margin': '10px 10px 0px 0px'}),
             ],
             width=9),
         ]),
@@ -167,7 +167,7 @@ def update_twas_table(page_current, page_size, sort_by, \
 
     df = df.loc[mask]
     total_rows = df.shape[0]
-    total_rows_text = '{} results found'.format(total_rows)
+    total_rows_text = '{} associations found'.format(total_rows)
     num_pages = int(total_rows / page_size) + 1
 
 

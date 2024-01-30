@@ -119,8 +119,8 @@ biovu_table = dash_table.DataTable(id='biovu_table', columns=biovu_cols, **biovu
 
 ## filter options 
 skws = {'display': 'flex', 'align-items': 'center'}
-twas_pval_text = html.H6('TWAS Significance:', style=skws) 
-gwas_pval_text = html.H6('GWAS Significance:', style=skws) 
+twas_pval_text = html.H6('TWAS Signif:', style=skws) 
+gwas_pval_text = html.H6('GWAS Signif:', style=skws) 
 
 twas_pvals = {'pval_TWAS': 'p <', 'FDR_TWAS': 'FDR(p) <', 'BON_TWAS': 'Bon(p) <'}
 gwas_pvals = {'pval_GWAS': 'p <', 'FDR_GWAS': 'FDR(p) <', 'BON_GWAS': 'Bon(p) <'}
@@ -146,7 +146,7 @@ jti_table = dash_table.DataTable(id='jti_table', columns=jti_cols, style_cell={'
 
 ## layout 
 kws = {'margin': '10px'} 
-kws1 = {'margin': '10px 10px 20px 10px', \
+kws1 = {'margin': '10px 0px 20px 10px', \
         'background-color': '#C0C0C0', \
         'padding': '10px 6px 6px 6px', 'border-radius': '5px'}
 
@@ -159,35 +159,39 @@ layout = dbc.Container([
                 dbc.Row(gene_input, style={'margin': '5px 5px 20px 0px'}), 
 
                 dbc.Row([
-                    dbc.Col(twas_pval_text, width=4),
+                    dbc.Col(twas_pval_text, width=3),
                     dbc.Col(twas_pval_menu, width=5), 
-                    dbc.Col(twas_pval_input, width=3), 
+                    dbc.Col(twas_pval_input, width=4), 
                     ], 
                     align='center', style={'margin': '5px 5px 10px 0px'}), 
 
                 dbc.Row([
-                    dbc.Col(gwas_pval_text, width=4),
+                    dbc.Col(gwas_pval_text, width=3),
                     dbc.Col(gwas_pval_menu, width=5), 
-                    dbc.Col(gwas_pval_input, width=3), 
+                    dbc.Col(gwas_pval_input, width=4), 
                     ], 
                     align='center', style={'margin': '5px 5px 10px 0px'}), 
 
                 ], 
                 align='center', style=kws1),
 
-            dbc.Row(gene_name, style=kws), 
-            dbc.Row(ens_label, style=kws), 
-            dbc.Row(jti_table, style=kws),
+            dbc.Row([
+                dbc.Col(gene_name, width='auto'), 
+                dbc.Col(ens_label, width='auto'), 
+                ], 
+                align='center', style={'margin': '10px 0px 10px 10px'}), 
+
+            dbc.Row(jti_table, style={'margin': '10px 0px 10px 10px'}),
             ],
             width=3), 
 
         dbc.Col([
-            dbc.Row(num_twas_text, style={'margin': '10px 10px 0px 10px'}),
-            dbc.Row(twas_table, style={'margin': '0px 10px 20px 10px'}), 
-            dbc.Row(num_gwas_text, style={'margin': '10px 10px 0px 10px'}),
-            dbc.Row(gwas_table, style={'margin': '0px 10px 20px 10px'}), 
-            dbc.Row(num_biov_text, style={'margin': '10px 10px 0px 10px'}),
-            dbc.Row(biovu_table, style={'margin': '0px 10px 20px 10px'}), 
+            dbc.Row(num_twas_text, style={'margin': '10px 10px 0px 0px'}),
+            dbc.Row(twas_table, style={'margin': '0px 10px 20px 0px'}), 
+            dbc.Row(num_gwas_text, style={'margin': '10px 10px 0px 0px'}),
+            dbc.Row(gwas_table, style={'margin': '0px 10px 20px 0px'}), 
+            dbc.Row(num_biov_text, style={'margin': '10px 10px 0px 0px'}),
+            dbc.Row(biovu_table, style={'margin': '0px 10px 20px 0px'}), 
             ], 
             width=9), 
         ]), 
@@ -238,7 +242,7 @@ def update_gene_twas_table(gene, page_current, page_size, sort_by, pval_type, pv
     bot = (page_current + 1) * page_size
     return df.iloc[top:bot].to_dict('records'), \
            'TWAS: {} results found'.format(df.shape[0]), \
-           num_pages, gene, sym2ens[gene] 
+           num_pages, gene, f'({sym2ens[gene]})' 
 
 ## callback: update GWAS table 
 @callback(
@@ -298,7 +302,7 @@ def update_biovu_table(gene):
     df = df.sort_values(['tissue', 'phename', 'volume'])
 
     return df.to_dict('records'), \
-           'BioVU Shared Genes: {} results found'.format(df.shape[0])
+           'BioVU Shared Associations: {} results found'.format(df.shape[0])
 
 ## callback: report number of JTI snps 
 @callback(
