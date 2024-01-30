@@ -38,12 +38,15 @@ twas_path = os.getcwd() + '/input_data/twas_ukb_volume.csv'
 twas_data = pd.read_csv(twas_path, usecols=tabl_cols) 
 
 ## create TWAS table
+page_nrow = 50
+num_pages = int(twas_data.shape[0] / page_nrow) + 1 
 twas_table = dash_table.DataTable(id='twas_table',
                                   columns=twas_cols,
 
                                   page_current=0,
-                                  page_size=50,
+                                  page_size=page_nrow,
                                   page_action='custom',
+                                  page_count=num_pages,
 
                                   sort_action='custom',
                                   sort_mode='multi',
@@ -121,6 +124,7 @@ layout = dbc.Container([
 ## callbacks 
 @callback(
     [Output('twas_table', 'data'),
+     Output('twas_table', 'page_count'),
      Output('num_results_txt', 'children')],
 
     Input('twas_table', 'page_current'),
@@ -146,7 +150,7 @@ def update_twas_table(page_current, page_size, sort_by, \
     if phen_filter:
         mask = np.logical_and(mask, df['phenotype'].isin(phen_filter))
     if gmod_filter:
-        mask = np.logical_and(mask, df['grex'].isin(gmod_filter))
+        mask = np.logical_and(mask, df['jti_model'].isin(gmod_filter))
     if gene_filter:
         mask = np.logical_and(mask, df['symbol'].isin(gene_filter))
 
@@ -155,6 +159,9 @@ def update_twas_table(page_current, page_size, sort_by, \
 
     df = df.loc[mask]
     total_rows = df.shape[0]
+    total_rows_text = '{} results found'.format(total_rows)
+    num_pages = int(total_rows / page_size) + 1
+
 
     ## sorting
     if len(sort_by):
@@ -165,8 +172,9 @@ def update_twas_table(page_current, page_size, sort_by, \
     ## paging
     top = page_current * page_size
     bot = (page_current + 1) * page_size
+
     return df.iloc[top:bot].to_dict('records'), \
-           '{} results found'.format(df.shape[0])
+           num_pages, total_rows_text
 
 
 
