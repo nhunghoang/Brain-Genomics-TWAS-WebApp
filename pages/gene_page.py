@@ -297,7 +297,7 @@ def update_gene_gwas_table(gene, page_current, page_size, sort_by, pval_type, pv
 
 def update_biovu_table(gene): 
 
-    if not gene: return None
+    if not gene: return None, None
     df = biovu_data.loc[biovu_data['sym'] == gene]
     df = df.sort_values(['tissue', 'phename', 'volume'])
 
