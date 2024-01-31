@@ -1,28 +1,29 @@
-# Brain Genomics TWAS WebApp 
-Simple web application for parsing TWAS results from _Hoang, et al._ (regional brain volumes in the UK Biobank) 
+# Brain Genomics TWAS Web App 
+Simple web application for parsing TWAS results from [_Hoang, et al._](https://osf.io/xefru) (regional brain volumes in the UK Biobank) 
 
 _last code update: Jan 30, 2024_
 
 ## How to Run
 
-App was developed using Python version 3.7.2
+App was developed using Python version 3.7.2 and [Plotly/Dash](https://dash.plotly.com/)
 
 Tasks to do once: 
-1) Download the _input_data_ folder (from Vanderbilt Box; available upon [request](https://vanderbilt.box.com/s/q43u7cdgz4vb6qgpyt4qwacjotkcbew2)) to the main folder
-2) Create a Python virtual environment: `python -m venv venv_dash`
-3) Activiate it and install the included dependencies using pip: `source venv_dash/bin/activate; pip install -r dash_reqs.txt`
+1) Open your terminal and clone this repository 
+2) Download the _input_data_ folder (available upon [request](https://forms.office.com/r/v69rWp5xkm)) to the main folder of this repo
+3) Create a Python virtual environment: `python -m venv venv_dash`
+4) Activate it and install the included dependencies using pip: `source venv_dash/bin/activate; pip install -r dash_reqs.txt`
 
 Running the app: 
-1) Make sure the virtual environment is activate (`source venv_dash/bin/activate` to do so)
+1) Make sure the virtual environment is activated (`source venv_dash/bin/activate` to do so)
 2) Run the app: `python app.py`
 3) Copy the local URL to your brower (example URL: http://127.0.0.1:8050/)
-4) Interact with the webapp!
+4) Interact with the web app!
 
 Closing the app: 
 1) Close the window as you would for a website
 2) Deactivate the virtual environment (`deactivate`)
 
-## WebApp Layout
+## Web App Layout
 
 Home (**TWAS Table**) page - for exploring all or a subset of the TWAS results 
 
