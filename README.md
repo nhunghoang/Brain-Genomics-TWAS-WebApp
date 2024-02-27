@@ -9,7 +9,7 @@ App was developed using Python version 3.7.2 and [Plotly/Dash](https://dash.plot
 
 Tasks to do once: 
 1) Open your terminal and clone this repository 
-2) Download the _input_data_ folder (available upon [request](https://forms.office.com/r/v69rWp5xkm)) to the main folder of this repo
+2) Download the _input_data_ folder (available upon [request](https://forms.office.com/r/v69rWp5xkm)) to the main folder of this repo and unzip it
 3) Create a Python virtual environment: `python -m venv venv_dash`
 4) Activate it and install the included dependencies using pip: `source venv_dash/bin/activate; pip install -r dash_reqs.txt`
 

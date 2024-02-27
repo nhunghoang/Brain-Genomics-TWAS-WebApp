@@ -18,24 +18,20 @@ import dash_bootstrap_components as dbc
 ###################################################################
 
 ## register this page 
-dash.register_page(__name__, name='Brain Genomics TWAS', path='/')
+dash.register_page(__name__, name='Neuroimaging TWAS Resource', path='/')
 
 ###################################################################
 
 ## load TWAS data 
-tabl_cols = ['phenotype', 'jti_model', 'symbol', 'beta_TWAS', 'pval_TWAS', 'FDR_TWAS', 'BON_TWAS']
-user_cols = ['Volume Phenotype', 'JTI Gene Model', 'Gene Symbol', 'Ensembl ID', \
-             'TWAS beta', 'TWAS p', 'TWAS FDR(p)', 'TWAS Bon(p)']
-
-twas_cols = [{'name': n, 'id': c} \
-              for n, c in zip(user_cols[:-4], tabl_cols[:-4])]
-
-sci_kws = {'type': 'numeric', 'format': {'specifier': '.2e'}}
-twas_cols += [{'name': n, 'id': c, **sci_kws} \
-               for n, c in zip(user_cols[-4:], tabl_cols[-4:])]
+tabl_cols = ['Gene', 'gr-Expression Site', 'Predicted Volume', \
+             'TWAS beta', 'TWAS p', 'TWAS p(FDR)', 'TWAS p(Bonf)']
 
 twas_path = os.getcwd() + '/input_data/twas_ukb_volume.csv' 
 twas_data = pd.read_csv(twas_path, usecols=tabl_cols) 
+
+sci_kws = {'type': 'numeric', 'format': {'specifier': '.2e'}}
+twas_cols = [{'name': c, 'id': c} for c in tabl_cols[:-4]]
+twas_cols += [{'name': c, 'id': c, **sci_kws} for c in tabl_cols[-4:]]
 
 ## create TWAS table
 page_nrow = 20
@@ -58,13 +54,13 @@ twas_table = dash_table.DataTable(id='twas_table',
 ## dropdown menus for filter options
 iregs = ['DLPFC', 'Ant. Cingulate', 'Amygdala', 'Hippocampus', \
          'Caudate', 'Putamen', 'Nuc. Accumbens', 'Cerebellum']
-genes = np.sort(twas_data['symbol'].unique())
-pvals = {'pval_TWAS': 'p <', 'FDR_TWAS': 'FDR(p) <', 'BON_TWAS': 'Bon(p) <'}
+genes = np.sort(twas_data['Gene'].unique())
+pvals = {'TWAS p': 'p <', 'TWAS p(FDR)': 'p(FDR) <', 'TWAS Bonf': 'p(Bonf) <'}
 
 phen_menu = dcc.Dropdown(iregs, None, id='phen_menu', multi=True)
 gmod_menu = dcc.Dropdown(iregs, None, id='gmod_menu', multi=True)
 gene_menu = dcc.Dropdown(genes, None, id='gene_menu', multi=True)
-pval_menu = dcc.Dropdown(pvals, 'pval_TWAS', id='pval_menu', multi=False, clearable=False)
+pval_menu = dcc.Dropdown(pvals, 'TWAS p', id='pval_menu', multi=False, clearable=False)
 
 ## user input for pval filter
 pval_input = dcc.Input(id='pval_itxt', type='number', min=0, max=1,
@@ -73,11 +69,11 @@ pval_input = dcc.Input(id='pval_itxt', type='number', min=0, max=1,
 
 ## various text
 style_kws = {'display': 'flex', 'align-items': 'center'}
-main_text = html.H5('TWAS Table Filters', style=style_kws)
-phen_text = html.H6('Regional Volumes:', style=style_kws)
-gmod_text = html.H6('Regional JTI Gene Models:', style=style_kws)
-gene_text = html.H6('Gene Symbols:', style=style_kws)
-pval_text = html.H6('Significance:', style=style_kws)
+main_text = html.H5('Table Filters', style=style_kws)
+gene_text = html.H6('Gene:', style=style_kws)
+gmod_text = html.H6('gr-Expression Site:', style=style_kws)
+phen_text = html.H6('Predicted Volume:', style=style_kws)
+pval_text = html.H6('Statistical Significance:', style=style_kws)
 
 num_res_txt = html.P('', id='num_results_txt', style=style_kws)
 
@@ -156,11 +152,11 @@ def update_twas_table(page_current, page_size, sort_by, \
     ## table filters (logical and)
     mask = np.ones(df.shape[0], dtype=bool)
     if phen_filter:
-        mask = np.logical_and(mask, df['phenotype'].isin(phen_filter))
+        mask = np.logical_and(mask, df['Predicted Volume'].isin(phen_filter))
     if gmod_filter:
-        mask = np.logical_and(mask, df['jti_model'].isin(gmod_filter))
+        mask = np.logical_and(mask, df['gr-Expression Site'].isin(gmod_filter))
     if gene_filter:
-        mask = np.logical_and(mask, df['symbol'].isin(gene_filter))
+        mask = np.logical_and(mask, df['Gene'].isin(gene_filter))
 
     if pval_filter and pval_input:
         mask = np.logical_and(mask, df[pval_filter] < pval_input)

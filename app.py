@@ -22,25 +22,11 @@ twas_page_path = dash.page_registry['pages.twas_home']['path']
 gene_page_path = dash.page_registry['pages.gene_page']['path']
 
 ## top navigation bar
-navbar = dbc.NavbarSimple(
-    children=[
-        dbc.NavItem(dbc.NavLink('TWAS Table', href=twas_page_path)),
-        dbc.NavItem(dbc.NavLink('Summaries by Gene', href=gene_page_path)),
-        dbc.DropdownMenu(
-            children=[
-                dbc.DropdownMenuItem('More', header=True),
-                dbc.DropdownMenuItem('Preprint', href='https://osf.io/preprints/osf/xefru'),
-                dbc.DropdownMenuItem('GitHub', href='https://github.com/nhunghoang/Brain-Genomics-TWAS-WebApp'),
-            ],
-            nav=True,
-            in_navbar=True,
-            label='More',
-        ),
+navbar = dbc.Nav([
+    dbc.NavItem(dbc.NavLink('Neuroimaging TWAS', active=True, href=twas_page_path, style={'color': 'black'})),
+    dbc.NavItem(dbc.NavLink('Gene Summaries', href=gene_page_path, style={'color': 'black'})),
     ],
-    brand='Brain Genomics',
-    brand_href=twas_page_path,
-    color='primary',
-    dark=True,
+    style={'background-color': '#b6d7a8', 'font-size': '125%'}
 )
 
 ## app layout 

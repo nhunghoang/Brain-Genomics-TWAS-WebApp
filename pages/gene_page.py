@@ -46,21 +46,18 @@ sym2ens = pd.read_csv(map2_path, index_col='sym').to_dict()['ens']
 ###################################################################
 
 ## load twas/gwas data
-gtabl_cols = ['SNP', 'phenotype', 'beta_GWAS', 'pval_GWAS', 'FDR_GWAS', 'BON_GWAS']
-guser_cols = ['SNP', 'Volume Phenotype', 'GWAS beta', 'GWAS p', 'GWAS FDR(p)', 'GWAS Bon(p)']
+gtabl_cols = ['SNP', 'Predicted Volume', 'GWAS beta', 'GWAS p', 'GWAS p(FDR)', 'GWAS p(Bonf)']
+ttabl_cols = ['gr-Expression Site', 'Predicted Volume', 'TWAS beta', 'TWAS p', 'TWAS p(FDR)', 'TWAS p(Bonf)']
 
-ttabl_cols = ['jti_model', 'phenotype', 'beta_TWAS', 'pval_TWAS', 'FDR_TWAS', 'BON_TWAS']
-tuser_cols = ['JTI Gene Model', 'Volume Phenotype', 'TWAS beta', 'TWAS p', 'TWAS FDR(p)', 'TWAS Bon(p)']
-
-gwas_cols = [{'name': n, 'id': c} for n, c in zip(guser_cols[:-4], gtabl_cols[:-4])]
-twas_cols = [{'name': n, 'id': c} for n, c in zip(tuser_cols[:-4], ttabl_cols[:-4])]
+gwas_cols = [{'name': c, 'id': c} for c in gtabl_cols[:-4]]
+twas_cols = [{'name': c, 'id': c} for c in ttabl_cols[:-4]]
 
 sci_kws = {'type': 'numeric', 'format': {'specifier': '.2e'}}
-gwas_cols += [{'name': n, 'id': c, **sci_kws} for n, c in zip(guser_cols[-4:], gtabl_cols[-4:])]
-twas_cols += [{'name': n, 'id': c, **sci_kws} for n, c in zip(tuser_cols[-4:], ttabl_cols[-4:])]
+gwas_cols += [{'name': c, 'id': c, **sci_kws} for c in gtabl_cols[-4:]]
+twas_cols += [{'name': c, 'id': c, **sci_kws} for c in ttabl_cols[-4:]]
 
 gwas_data = pd.read_csv(gwas_path, usecols=gtabl_cols)
-twas_data = pd.read_csv(twas_path, usecols=ttabl_cols + ['symbol'])
+twas_data = pd.read_csv(twas_path, usecols=ttabl_cols + ['Gene'])
 
 ###################################################################
 
@@ -80,7 +77,7 @@ biovu_data['phename'] = biovu_data.apply(lambda x: rename(x['phecode'], x['phena
 ###################################################################
 
 ## gene prompt 
-genes_list = np.sort(twas_data['symbol'].unique())
+genes_list = np.sort(twas_data['Gene'].unique())
 gene_input = dcc.Dropdown(genes_list, None, id='gene_input', \
                           multi=False, placeholder='Enter or select a gene...')
 
@@ -91,9 +88,9 @@ ens_label = html.H6('', id='ens_label')
 ######################################################################################
 
 ## create twas/gwas tables
-fcols = [f'{stat}_GWAS' for stat in ['beta', 'pval', 'FDR', 'BON']] + \
-        [f'{stat}_TWAS' for stat in ['beta', 'pval', 'FDR', 'BON']] 
-scols = ['phenotype', 'SNP', 'jti_model']
+fcols = [f'GWAS {stat}' for stat in ['beta', 'p', 'p(FDR)', 'p(BON)']] + \
+        [f'TWAS {stat}' for stat in ['beta', 'p', 'p(FDR)', 'p(BON)']] 
+scols = ['Predicted Volume', 'SNP', 'gr-Expression Site']
 
 col_widths = [{'if': {'column_id': c}, 'width': '15%'} for c in fcols] + \
              [{'if': {'column_id': c}, 'width': '20%'} for c in scols]
@@ -105,9 +102,9 @@ kws = {'page_current': 0, 'page_size': 10, 'page_action': 'custom', 'page_count'
 gwas_table = dash_table.DataTable(id='gene_gwas_table', columns=gwas_cols, **kws)
 twas_table = dash_table.DataTable(id='gene_twas_table', columns=twas_cols, **kws)
 
-num_gwas_text = html.H5('', id='num_gwas_text')
-num_twas_text = html.H5('', id='num_twas_text')
-num_biov_text = html.H5('', id='num_biov_text')
+num_gwas_text = html.H5('Neuroimaging GWAS', id='num_gwas_text')
+num_twas_text = html.H5('Neuroimaging TWAS', id='num_twas_text')
+num_biov_text = html.H5('Clinical TWAS', id='num_biov_text')
 
 ######################################################################################
 
@@ -122,12 +119,12 @@ skws = {'display': 'flex', 'align-items': 'center'}
 twas_pval_text = html.H6('TWAS Signif:', style=skws) 
 gwas_pval_text = html.H6('GWAS Signif:', style=skws) 
 
-twas_pvals = {'pval_TWAS': 'p <', 'FDR_TWAS': 'FDR(p) <', 'BON_TWAS': 'Bon(p) <'}
-gwas_pvals = {'pval_GWAS': 'p <', 'FDR_GWAS': 'FDR(p) <', 'BON_GWAS': 'Bon(p) <'}
+twas_pvals = {'TWAS p': 'p <', 'TWAS p(FDR)': 'p(FDR) <', 'TWAS p(Bonf)': 'p(Bonf) <'}
+gwas_pvals = {'GWAS p': 'p <', 'GWAS p(FDR)': 'p(FDR) <', 'GWAS p(Bonf)': 'p(Bonf) <'}
 
 mkws = {'multi': False, 'clearable': False}
-twas_pval_menu = dcc.Dropdown(twas_pvals, 'pval_TWAS', id='twas_pval_menu', **mkws)
-gwas_pval_menu = dcc.Dropdown(gwas_pvals, 'pval_GWAS', id='gwas_pval_menu', **mkws)
+twas_pval_menu = dcc.Dropdown(twas_pvals, 'TWAS p', id='twas_pval_menu', **mkws)
+gwas_pval_menu = dcc.Dropdown(gwas_pvals, 'GWAS p', id='gwas_pval_menu', **mkws)
 
 ikws = {'type': 'number', 'min': 0, 'max': 1, 'debounce': True, 'style': {'width': '100%'}} 
 twas_pval_input = dcc.Input(id='twas_pval_input', value=1, **ikws)
@@ -139,7 +136,7 @@ gwas_pval_input = dcc.Input(id='gwas_pval_input', value=1, **ikws)
 regs = ['DLPFC', 'Ant. Cingulate', 'Amygdala', 'Hippocampus', \
         'Caudate', 'Putamen', 'Nuc. Accumbens', 'Cerebellum']
 
-jti_cols = [{'name': 'Regional JTI Model', 'id': 'jti_reg'}, {'name': '# SNPs', 'id': 'num_snps'}]
+jti_cols = [{'name': 'gr-Expression Site', 'id': 'jti_reg'}, {'name': '# SNPs', 'id': 'num_snps'}]
 jti_table = dash_table.DataTable(id='jti_table', columns=jti_cols, style_cell={'textAlign': 'left'})
 
 ######################################################################################
@@ -159,16 +156,16 @@ layout = dbc.Container([
                 dbc.Row(gene_input, style={'margin': '5px 5px 20px 0px'}), 
 
                 dbc.Row([
-                    dbc.Col(twas_pval_text, width=3),
-                    dbc.Col(twas_pval_menu, width=5), 
-                    dbc.Col(twas_pval_input, width=4), 
+                    dbc.Col(gwas_pval_text, width=3),
+                    dbc.Col(gwas_pval_menu, width=5), 
+                    dbc.Col(gwas_pval_input, width=4), 
                     ], 
                     align='center', style={'margin': '5px 5px 10px 0px'}), 
 
                 dbc.Row([
-                    dbc.Col(gwas_pval_text, width=3),
-                    dbc.Col(gwas_pval_menu, width=5), 
-                    dbc.Col(gwas_pval_input, width=4), 
+                    dbc.Col(twas_pval_text, width=3),
+                    dbc.Col(twas_pval_menu, width=5), 
+                    dbc.Col(twas_pval_input, width=4), 
                     ], 
                     align='center', style={'margin': '5px 5px 10px 0px'}), 
 
@@ -186,10 +183,10 @@ layout = dbc.Container([
             width=3), 
 
         dbc.Col([
-            dbc.Row(num_twas_text, style={'margin': '10px 10px 0px 0px'}),
-            dbc.Row(twas_table, style={'margin': '0px 10px 20px 0px'}), 
             dbc.Row(num_gwas_text, style={'margin': '10px 10px 0px 0px'}),
             dbc.Row(gwas_table, style={'margin': '0px 10px 20px 0px'}), 
+            dbc.Row(num_twas_text, style={'margin': '10px 10px 0px 0px'}),
+            dbc.Row(twas_table, style={'margin': '0px 10px 20px 0px'}), 
             dbc.Row(num_biov_text, style={'margin': '10px 10px 0px 0px'}),
             dbc.Row(biovu_table, style={'margin': '0px 10px 20px 0px'}), 
             ], 
@@ -223,7 +220,7 @@ layout = dbc.Container([
 def update_gene_twas_table(gene, page_current, page_size, sort_by, pval_type, pval_text): 
 
     if not gene: return None, None, None, None, None
-    df = twas_data.loc[twas_data['symbol'] == gene]
+    df = twas_data.loc[twas_data['Gene'] == gene]
 
     ## filters 
     if pval_type: 
@@ -241,7 +238,7 @@ def update_gene_twas_table(gene, page_current, page_size, sort_by, pval_type, pv
     top = page_current * page_size
     bot = (page_current + 1) * page_size
     return df.iloc[top:bot].to_dict('records'), \
-           'TWAS: {} results found'.format(df.shape[0]), \
+           'Neuroimaging TWAS: {} results'.format(df.shape[0]), \
            num_pages, gene, f'({sym2ens[gene]})' 
 
 ## callback: update GWAS table 
@@ -283,7 +280,7 @@ def update_gene_gwas_table(gene, page_current, page_size, sort_by, pval_type, pv
     top = page_current * page_size
     bot = (page_current + 1) * page_size
     return df.iloc[top:bot].to_dict('records'), \
-           'GWAS: {} results found'.format(df.shape[0]), \
+           'Neuroimaging GWAS: {} results'.format(df.shape[0]), \
            num_pages
 
 ## callback: update BioVU table 
@@ -302,7 +299,7 @@ def update_biovu_table(gene):
     df = df.sort_values(['tissue', 'phename', 'volume'])
 
     return df.to_dict('records'), \
-           'BioVU Shared Associations: {} results found'.format(df.shape[0])
+           'Clinical TWAS: {} results'.format(df.shape[0])
 
 ## callback: report number of JTI snps 
 @callback(
